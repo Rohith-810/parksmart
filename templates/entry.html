@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Vehicle Entry – ParkSmart{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1><i class="fas fa-sign-in-alt"></i> Vehicle Entry</h1>
+  <p>Register a new vehicle and assign a parking slot</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
+
+  <!-- FORM -->
+  <div class="card">
+    <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;margin-bottom:1.2rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;"><i class="fas fa-car" style="color:var(--accent);margin-right:8px;"></i>Vehicle Details</h3>
+    <form method="POST" action="/entry">
+      <div class="form-group">
+        <label class="form-label">Vehicle Number *</label>
+        <input type="text" name="vehicle_number" class="form-control" placeholder="e.g. AP28CD1234" required style="text-transform:uppercase;">
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Vehicle Type *</label>
+          <select name="vehicle_type" class="form-control" required id="vtype">
+            <option value="">Select Type</option>
+            <option value="two-wheeler">Two Wheeler (₹20/hr)</option>
+            <option value="car">Car (₹40/hr)</option>
+            <option value="bus">Bus/Truck (₹80/hr)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Parking Slot *</label>
+          <select name="slot_id" class="form-control" required id="slotSelect">
+            <option value="">Select Slot</option>
+            {% for s in slots %}
+            <option value="{{ s.id }}" data-type="{{ s.slot_type }}">{{ s.slot_number }} ({{ s.slot_type|capitalize }})</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Owner Name *</label>
+        <input type="text" name="owner_name" class="form-control" placeholder="Full Name" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number *</label>
+        <input type="tel" name="phone" class="form-control" placeholder="10-digit mobile number" maxlength="10" required>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:1.5rem;">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Register Entry</button>
+        <a href="/" class="btn btn-outline"><i class="fas fa-times"></i> Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- SLOT AVAILABILITY QUICK VIEW -->
+  <div class="card">
+    <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;"><i class="fas fa-th" style="color:var(--primary);margin-right:8px;"></i>Slot Availability</h3>
+    <div style="display:flex;gap:12px;margin-bottom:1rem;flex-wrap:wrap;font-size:0.82rem;">
+      <span style="color:var(--success);"><i class="fas fa-square" style="margin-right:4px;"></i>Available</span>
+      <span style="color:var(--danger);"><i class="fas fa-square" style="margin-right:4px;"></i>Occupied</span>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <p style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">VIP Slots (A)</p>
+      <div class="slot-grid" id="vipSlots"></div>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <p style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Regular (B)</p>
+      <div class="slot-grid" id="regSlots"></div>
+    </div>
+    <div>
+      <p style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Two-Wheeler (C)</p>
+      <div class="slot-grid" id="twSlots"></div>
+    </div>
+    <!-- PRICING -->
+    <div style="margin-top:1.2rem;padding:12px;background:rgba(0,198,255,0.05);border:1px solid rgba(0,198,255,0.15);border-radius:8px;">
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Parking Rates</p>
+      <div style="font-size:0.83rem;display:flex;gap:1rem;flex-wrap:wrap;">
+        <span>🛵 Two-Wheeler: <b style="color:var(--primary);">₹20/hr</b></span>
+        <span>🚗 Car: <b style="color:var(--primary);">₹40/hr</b></span>
+        <span>🚌 Bus: <b style="color:var(--primary);">₹80/hr</b></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  fetch('/api/slots').then(r=>r.json()).then(slots=>{
+    slots.forEach(s=>{
+      const el = document.createElement('div');
+      el.className = `slot-item ${s.status}`;
+      const icons = {vip:'⭐',regular:'🚗','two-wheeler':'🛵'};
+      el.innerHTML = `<span class="s-icon">${icons[s.slot_type]||'🚗'}</span>${s.slot_number}<div class="s-type">${s.status}</div>`;
+      if(s.slot_type==='vip') document.getElementById('vipSlots').appendChild(el);
+      else if(s.slot_type==='regular') document.getElementById('regSlots').appendChild(el);
+      else document.getElementById('twSlots').appendChild(el);
+    });
+  });
+</script>
+{% endblock %}

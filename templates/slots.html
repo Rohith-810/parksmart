@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Parking Slots – ParkSmart{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1><i class="fas fa-th"></i> Parking Slots</h1>
+  <p>Real-time slot availability map</p>
+</div>
+
+<!-- LEGEND -->
+<div style="display:flex;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;font-size:0.88rem;">
+  <span style="color:var(--success);"><i class="fas fa-circle" style="margin-right:6px;"></i>Available</span>
+  <span style="color:var(--danger);"><i class="fas fa-circle" style="margin-right:6px;"></i>Occupied</span>
+</div>
+
+{% set types = [('vip','⭐ VIP Slots (A-Row)','VIP'),('regular','🚗 Regular Slots (B-Row)','Regular'),('two-wheeler','🛵 Two-Wheeler Slots (C-Row)','Two-Wheeler')] %}
+{% for stype, label, badge in types %}
+<div class="card" style="margin-bottom:1.2rem;">
+  <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">{{ label }}</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;">
+    {% for s in slots if s.slot_type == stype %}
+    <div style="border:1px solid {{ 'rgba(16,185,129,0.35)' if s.status=='available' else 'rgba(239,68,68,0.35)' }};border-radius:10px;padding:14px;background:{{ 'rgba(16,185,129,0.06)' if s.status=='available' else 'rgba(239,68,68,0.06)' }};">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <b style="font-size:1.05rem;font-family:'Rajdhani',sans-serif;">{{ s.slot_number }}</b>
+        <span class="badge {{ 'badge-success' if s.status=='available' else 'badge-danger' }}">{{ s.status }}</span>
+      </div>
+      {% if s.status == 'occupied' %}
+        <p style="font-size:0.8rem;color:var(--text);">🚗 {{ s.vehicle_number }}</p>
+        <p style="font-size:0.75rem;color:var(--muted);">{{ s.owner_name }}</p>
+      {% else %}
+        <p style="font-size:0.8rem;color:var(--muted);">Open for parking</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}
+
+<div style="text-align:center;margin-top:1rem;">
+  <a href="/entry" class="btn btn-primary"><i class="fas fa-plus"></i> Park a Vehicle</a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Admin Login – ParkSmart{% endblock %}
+{% block content %}
+
+<div style="display:flex;justify-content:center;align-items:center;min-height:60vh;">
+  <div class="card" style="width:100%;max-width:400px;">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div style="width:64px;height:64px;border-radius:16px;background:rgba(255,107,53,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.8rem;color:var(--accent);">
+        <i class="fas fa-user-shield"></i>
+      </div>
+      <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;">Admin Login</h2>
+      <p style="color:var(--muted);font-size:0.85rem;margin-top:4px;">Restricted – Authorized Personnel Only</p>
+    </div>
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" placeholder="Enter username" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </button>
+    </form>
+    <p style="text-align:center;font-size:0.78rem;color:var(--muted);margin-top:1rem;">Default: admin / admin123</p>
+  </div>
+</div>
+
+{% endblock %}

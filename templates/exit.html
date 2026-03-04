@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Vehicle Exit – ParkSmart{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1><i class="fas fa-sign-out-alt"></i> Vehicle Exit & Payment</h1>
+  <p>Search by vehicle number or booking ID to process checkout</p>
+</div>
+
+<!-- SEARCH FORM -->
+<div class="card" style="max-width:600px;margin-bottom:1.5rem;">
+  <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;margin-bottom:1.2rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;"><i class="fas fa-search" style="color:var(--primary);margin-right:8px;"></i>Find Vehicle</h3>
+  <form method="POST" action="/exit">
+    <input type="hidden" name="action" value="search">
+    <div style="display:flex;gap:10px;">
+      <input type="text" name="query" class="form-control" placeholder="Vehicle Number (AP28CD1234) or Booking ID (BK123456)" required style="flex:1;text-transform:uppercase;">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+    </div>
+  </form>
+</div>
+
+{% if vehicle %}
+<!-- VEHICLE DETAILS + PAYMENT -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
+
+  <!-- VEHICLE INFO -->
+  <div class="card">
+    <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;margin-bottom:1.2rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;"><i class="fas fa-car" style="color:var(--accent);margin-right:8px;"></i>Vehicle Info</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      {% set rows = [
+        ('Booking ID',   vehicle.booking_id,     'primary'),
+        ('Vehicle No.',  vehicle.vehicle_number,  'warning'),
+        ('Type',         vehicle.vehicle_type,    None),
+        ('Owner',        vehicle.owner_name,      None),
+        ('Phone',        vehicle.phone,           None),
+        ('Slot',         vehicle.slot_number,     'info'),
+        ('Entry Time',   vehicle.entry_time,      None),
+      ] %}
+      {% for label, val, color in rows %}
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--muted);font-size:0.85rem;">{{ label }}</span>
+        <span style="font-weight:600;{% if color %}color:var(--{{color}});{% endif %}">{{ val }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- PAYMENT -->
+  <div class="card">
+    <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;margin-bottom:1.2rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;"><i class="fas fa-rupee-sign" style="color:var(--success);margin-right:8px;"></i>Process Payment</h3>
+
+    <div style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:16px;margin-bottom:1.2rem;text-align:center;">
+      <p style="color:var(--muted);font-size:0.82rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Estimated Amount</p>
+      <p style="font-size:2.2rem;font-weight:700;font-family:'Rajdhani',sans-serif;color:var(--success);" id="estimatedAmt">Calculating…</p>
+      <p style="color:var(--muted);font-size:0.8rem;" id="estimatedHrs"></p>
+    </div>
+
+    <form method="POST" action="/exit">
+      <input type="hidden" name="action"     value="checkout">
+      <input type="hidden" name="vehicle_id" value="{{ vehicle.id }}">
+      <div class="form-group">
+        <label class="form-label">Payment Mode *</label>
+        <select name="payment_mode" class="form-control" required>
+          <option value="cash">💵 Cash</option>
+          <option value="upi">📱 UPI</option>
+          <option value="card">💳 Card</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:1.2rem;">
+        <button type="submit" class="btn btn-success" style="flex:1;" onclick="return confirm('Confirm checkout?')">
+          <i class="fas fa-check-circle"></i> Confirm Checkout
+        </button>
+        <a href="/exit" class="btn btn-outline"><i class="fas fa-times"></i></a>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+<script>
+  (function(){
+    const entry = new Date("{{ vehicle.entry_time }}");
+    const now   = new Date();
+    let diffMs  = now - entry;
+    let hrs     = Math.max(1, Math.ceil(diffMs / 3600000));
+    const rates = {'two-wheeler':20,'car':40,'bus':80};
+    const vtype = "{{ vehicle.vehicle_type }}".toLowerCase();
+    const rate  = rates[vtype] || 40;
+    const amt   = hrs * rate;
+    document.getElementById('estimatedAmt').textContent = '₹' + amt;
+    document.getElementById('estimatedHrs').textContent = hrs + ' hour(s) @ ₹' + rate + '/hr';
+  })();
+</script>
+{% endif %}
+
+{% endblock %}

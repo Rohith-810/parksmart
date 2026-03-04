@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard – ParkSmart{% endblock %}
+{% block content %}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.8rem;flex-wrap:wrap;gap:10px;">
+  <div>
+    <h1 style="font-family:'Rajdhani',sans-serif;font-size:1.9rem;font-weight:700;display:flex;align-items:center;gap:10px;">
+      <i class="fas fa-chart-line" style="color:var(--accent);"></i> Admin Dashboard
+    </h1>
+    <p style="color:var(--muted);font-size:0.88rem;margin-top:4px;">Full control panel & analytics</p>
+  </div>
+  <a href="/admin/logout" class="btn btn-outline" style="color:var(--danger);border-color:rgba(239,68,68,0.3);">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </a>
+</div>
+
+<!-- STAT CARDS -->
+<div class="stat-grid" style="margin-bottom:1.5rem;">
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="fas fa-car"></i></div>
+    <div><div class="stat-value">{{ total_vehicles }}</div><div class="stat-label">Total Vehicles Served</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon orange"><i class="fas fa-parking"></i></div>
+    <div><div class="stat-value">{{ active_vehicles }}</div><div class="stat-label">Currently Parked</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon yellow"><i class="fas fa-rupee-sign"></i></div>
+    <div><div class="stat-value">₹{{ "%.0f"|format(today_earnings) }}</div><div class="stat-label">Today's Revenue</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green"><i class="fas fa-wallet"></i></div>
+    <div><div class="stat-value">₹{{ "%.0f"|format(total_earnings) }}</div><div class="stat-label">Total Revenue</div></div>
+  </div>
+</div>
+
+<!-- SLOT TYPE STATS -->
+<div class="card" style="margin-bottom:1.5rem;">
+  <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.05rem;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;"><i class="fas fa-th" style="color:var(--primary);margin-right:8px;"></i>Slot Utilization by Type</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;">
+    {% for st in slot_stats %}
+    {% set pct = ((st.occupied / st.total)*100)|int if st.total > 0 else 0 %}
+    <div style="padding:14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;">
+      <p style="font-weight:600;text-transform:capitalize;margin-bottom:6px;">{{ st.slot_type }}</p>
+      <p style="font-size:0.82rem;color:var(--muted);">{{ st.occupied }}/{{ st.total }} occupied</p>
+      <div style="background:var(--border);border-radius:20px;height:6px;margin-top:8px;">
+        <div style="width:{{pct}}%;height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:20px;"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ALL VEHICLES TABLE -->
+<div class="card" style="margin-bottom:1.5rem;">
+  <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.05rem;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;"><i class="fas fa-list" style="color:var(--primary);margin-right:8px;"></i>Vehicle Records (Last 20)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Booking ID</th><th>Vehicle No.</th><th>Type</th><th>Owner</th><th>Slot</th><th>Entry</th><th>Exit</th><th>Amount</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for v in all_vehicles %}
+        <tr>
+          <td><code style="color:var(--primary);font-size:0.8rem;">{{ v.booking_id }}</code></td>
+          <td><b>{{ v.vehicle_number }}</b></td>
+          <td style="text-transform:capitalize;">{{ v.vehicle_type }}</td>
+          <td>{{ v.owner_name }}</td>
+          <td><span class="badge badge-info">{{ v.slot_number or '—' }}</span></td>
+          <td style="font-size:0.8rem;color:var(--muted);">{{ v.entry_time }}</td>
+          <td style="font-size:0.8rem;color:var(--muted);">{{ v.exit_time or '—' }}</td>
+          <td style="color:var(--success);">{% if v.amount_paid > 0 %}₹{{ "%.0f"|format(v.amount_paid) }}{% else %}—{% endif %}</td>
+          <td>
+            <span class="badge {{ 'badge-success' if v.status=='parked' else 'badge-warning' }}">
+              {{ v.status }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAYMENTS TABLE -->
+<div class="card">
+  <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.05rem;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;"><i class="fas fa-receipt" style="color:var(--success);margin-right:8px;"></i>Recent Payments</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Booking ID</th><th>Vehicle</th><th>Amount</th><th>Mode</th><th>Time</th></tr></thead>
+      <tbody>
+        {% for p in payments %}
+        <tr>
+          <td><code style="color:var(--primary);font-size:0.8rem;">{{ p.booking_id }}</code></td>
+          <td><b>{{ p.vehicle_number }}</b></td>
+          <td style="color:var(--success);font-weight:700;">₹{{ "%.0f"|format(p.amount) }}</td>
+          <td><span class="badge badge-info" style="text-transform:uppercase;">{{ p.payment_mode }}</span></td>
+          <td style="font-size:0.8rem;color:var(--muted);">{{ p.payment_time }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

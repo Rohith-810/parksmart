@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard – ParkSmart{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+  <p>Real-time parking facility overview</p>
+</div>
+
+<!-- STATS -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="fas fa-parking"></i></div>
+    <div>
+      <div class="stat-value">{{ total }}</div>
+      <div class="stat-label">Total Slots</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon orange"><i class="fas fa-car"></i></div>
+    <div>
+      <div class="stat-value">{{ occupied }}</div>
+      <div class="stat-label">Occupied</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+    <div>
+      <div class="stat-value">{{ available }}</div>
+      <div class="stat-label">Available</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon yellow"><i class="fas fa-rupee-sign"></i></div>
+    <div>
+      <div class="stat-value">₹{{ "%.0f"|format(today_earnings) }}</div>
+      <div class="stat-label">Today's Earnings</div>
+    </div>
+  </div>
+</div>
+
+<!-- OCCUPANCY BAR -->
+<div class="card" style="margin-bottom:1.5rem;">
+  <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Occupancy Rate</h3>
+  {% set pct = ((occupied/total)*100)|int if total>0 else 0 %}
+  <div style="background:var(--border);border-radius:20px;height:12px;overflow:hidden;">
+    <div style="width:{{pct}}%;height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:20px;transition:width .5s;"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.82rem;color:var(--muted);">
+    <span>{{ pct }}% Occupied</span>
+    <span>{{ available }} slots free</span>
+  </div>
+</div>
+
+<!-- QUICK ACTIONS -->
+<div style="display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;">
+  <a href="/entry" class="btn btn-primary"><i class="fas fa-plus-circle"></i> New Vehicle Entry</a>
+  <a href="/exit"  class="btn btn-success"><i class="fas fa-sign-out-alt"></i> Process Exit</a>
+  <a href="/slots" class="btn btn-outline"><i class="fas fa-th"></i> View All Slots</a>
+</div>
+
+<!-- RECENT PARKED -->
+<div class="card">
+  <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;margin-bottom:1.2rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;"><i class="fas fa-history" style="color:var(--primary);margin-right:8px;"></i>Recently Parked</h3>
+  {% if recent %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Booking ID</th><th>Vehicle No.</th><th>Owner</th><th>Slot</th><th>Entry Time</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for v in recent %}
+        <tr>
+          <td><code style="color:var(--primary);background:rgba(0,198,255,0.07);padding:2px 8px;border-radius:4px;">{{ v.booking_id }}</code></td>
+          <td><b>{{ v.vehicle_number }}</b></td>
+          <td>{{ v.owner_name }}</td>
+          <td><span class="badge badge-info">{{ v.slot_number }}</span></td>
+          <td style="color:var(--muted);font-size:0.83rem;">{{ v.entry_time }}</td>
+          <td><span class="badge badge-success">Parked</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p style="color:var(--muted);text-align:center;padding:2rem;"><i class="fas fa-parking" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No vehicles currently parked</p>
+  {% endif %}
+</div>
+
+{% endblock %}

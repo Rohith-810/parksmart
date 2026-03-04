@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}ParkSmart{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    :root {
+      --primary: #00c6ff;
+      --accent:  #ff6b35;
+      --dark:    #0a0e1a;
+      --card:    #111827;
+      --border:  #1e2d40;
+      --text:    #e2e8f0;
+      --muted:   #64748b;
+      --success: #10b981;
+      --danger:  #ef4444;
+      --warning: #f59e0b;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:var(--dark); color:var(--text); min-height:100vh; }
+
+    /* NAVBAR */
+    .navbar {
+      background:rgba(10,14,26,0.95);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      padding:0 2rem;
+      display:flex; align-items:center; justify-content:space-between;
+      height:64px; position:sticky; top:0; z-index:100;
+    }
+    .navbar-brand {
+      font-family:'Rajdhani',sans-serif; font-size:1.6rem; font-weight:700;
+      color:var(--primary); text-decoration:none; display:flex; align-items:center; gap:10px;
+    }
+    .navbar-brand i { color:var(--accent); }
+    .nav-links { display:flex; gap:4px; align-items:center; }
+    .nav-links a {
+      color:var(--muted); text-decoration:none; padding:8px 14px; border-radius:8px;
+      font-size:0.88rem; font-weight:500; transition:all .2s; display:flex; align-items:center; gap:6px;
+    }
+    .nav-links a:hover, .nav-links a.active { color:var(--text); background:var(--border); }
+    .nav-links a.btn-accent { background:var(--accent); color:#fff; }
+    .nav-links a.btn-accent:hover { background:#e55a26; }
+
+    /* MAIN */
+    .main { padding:2rem; max-width:1200px; margin:0 auto; }
+
+    /* CARDS */
+    .card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:14px; padding:1.5rem; position:relative; overflow:hidden;
+    }
+    .card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg,var(--primary),var(--accent));
+    }
+    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-bottom:2rem; }
+    .stat-card {
+      background:var(--card); border:1px solid var(--border); border-radius:14px;
+      padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1rem;
+      transition:transform .2s, box-shadow .2s;
+    }
+    .stat-card:hover { transform:translateY(-3px); box-shadow:0 8px 30px rgba(0,198,255,0.1); }
+    .stat-icon {
+      width:48px; height:48px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0;
+    }
+    .stat-icon.blue   { background:rgba(0,198,255,0.15); color:var(--primary); }
+    .stat-icon.orange { background:rgba(255,107,53,0.15); color:var(--accent); }
+    .stat-icon.green  { background:rgba(16,185,129,0.15); color:var(--success); }
+    .stat-icon.yellow { background:rgba(245,158,11,0.15); color:var(--warning); }
+    .stat-value { font-size:1.7rem; font-weight:700; font-family:'Rajdhani',sans-serif; line-height:1; }
+    .stat-label { font-size:0.78rem; color:var(--muted); margin-top:3px; text-transform:uppercase; letter-spacing:.05em; }
+
+    /* FORM */
+    .form-group { margin-bottom:1.2rem; }
+    .form-label { font-size:0.83rem; font-weight:500; color:var(--muted); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:.05em; }
+    .form-control {
+      width:100%; padding:10px 14px; background:rgba(255,255,255,0.04);
+      border:1px solid var(--border); border-radius:8px; color:var(--text);
+      font-size:0.93rem; font-family:'Inter',sans-serif; transition:border-color .2s;
+    }
+    .form-control:focus { outline:none; border-color:var(--primary); background:rgba(0,198,255,0.04); }
+    .form-control option { background:var(--card); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+    /* BUTTONS */
+    .btn {
+      padding:10px 22px; border-radius:8px; font-size:0.9rem; font-weight:600;
+      cursor:pointer; border:none; transition:all .2s; display:inline-flex; align-items:center; gap:8px;
+      font-family:'Inter',sans-serif;
+    }
+    .btn-primary { background:linear-gradient(135deg,var(--primary),#0099cc); color:#000; }
+    .btn-primary:hover { opacity:.9; transform:translateY(-1px); }
+    .btn-danger { background:var(--danger); color:#fff; }
+    .btn-success { background:var(--success); color:#fff; }
+    .btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
+    .btn-outline:hover { border-color:var(--primary); color:var(--primary); }
+
+    /* TABLE */
+    .table-wrap { overflow-x:auto; border-radius:10px; }
+    table { width:100%; border-collapse:collapse; }
+    th { padding:10px 14px; text-align:left; font-size:0.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); border-bottom:1px solid var(--border); }
+    td { padding:11px 14px; font-size:0.88rem; border-bottom:1px solid rgba(30,45,64,0.5); }
+    tr:hover td { background:rgba(255,255,255,0.02); }
+
+    /* BADGE */
+    .badge { padding:3px 10px; border-radius:20px; font-size:0.73rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+    .badge-success { background:rgba(16,185,129,0.15); color:var(--success); }
+    .badge-danger  { background:rgba(239,68,68,0.15);  color:var(--danger); }
+    .badge-warning { background:rgba(245,158,11,0.15); color:var(--warning); }
+    .badge-info    { background:rgba(0,198,255,0.15);  color:var(--primary); }
+
+    /* ALERT */
+    .alert { padding:12px 16px; border-radius:8px; margin-bottom:1rem; font-size:0.9rem; display:flex; align-items:center; gap:10px; }
+    .alert-success { background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--success); }
+    .alert-error   { background:rgba(239,68,68,0.12);  border:1px solid rgba(239,68,68,0.3);  color:var(--danger); }
+
+    /* PAGE HEADER */
+    .page-header { margin-bottom:1.8rem; }
+    .page-header h1 { font-family:'Rajdhani',sans-serif; font-size:1.9rem; font-weight:700; display:flex; align-items:center; gap:10px; }
+    .page-header h1 i { color:var(--primary); }
+    .page-header p { color:var(--muted); font-size:0.88rem; margin-top:4px; }
+
+    /* SLOT GRID */
+    .slot-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:10px; }
+    .slot-item {
+      border:1px solid var(--border); border-radius:10px; padding:12px 8px; text-align:center;
+      cursor:default; transition:all .2s; font-size:0.85rem; font-weight:600;
+    }
+    .slot-item.available { border-color:rgba(16,185,129,0.4); color:var(--success); background:rgba(16,185,129,0.07); }
+    .slot-item.occupied  { border-color:rgba(239,68,68,0.4);  color:var(--danger);  background:rgba(239,68,68,0.07); }
+    .slot-item .s-icon { font-size:1.2rem; display:block; margin-bottom:4px; }
+    .slot-item .s-type { font-size:0.68rem; color:var(--muted); text-transform:uppercase; margin-top:3px; }
+
+    /* FOOTER */
+    footer { text-align:center; padding:1.5rem; color:var(--muted); font-size:0.8rem; border-top:1px solid var(--border); margin-top:3rem; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a class="navbar-brand" href="/"><i class="fas fa-parking"></i> ParkSmart</a>
+  <div class="nav-links">
+    <a href="/" {% if request.path=='/' %}class="active"{% endif %}><i class="fas fa-home"></i> Dashboard</a>
+    <a href="/entry" {% if request.path=='/entry' %}class="active"{% endif %}><i class="fas fa-sign-in-alt"></i> Entry</a>
+    <a href="/exit"  {% if request.path=='/exit'  %}class="active"{% endif %}><i class="fas fa-sign-out-alt"></i> Exit</a>
+    <a href="/slots" {% if request.path=='/slots' %}class="active"{% endif %}><i class="fas fa-th"></i> Slots</a>
+    <a href="/admin/dashboard" class="btn-accent"><i class="fas fa-user-shield"></i> Admin</a>
+  </div>
+</nav>
+
+<div class="main">
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in msgs %}
+      <div class="alert alert-{{ 'success' if cat=='success' else 'error' }}">
+        <i class="fas fa-{{ 'check-circle' if cat=='success' else 'exclamation-circle' }}"></i> {{ msg }}
+      </div>
+    {% endfor %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</div>
+
+<footer>© 2024 ParkSmart Vehicle Parking Management System · Built with Flask & SQLite</footer>
+</body>
+</html>
